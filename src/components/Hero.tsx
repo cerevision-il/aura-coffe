@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useScroll } from 'framer-motion';
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -8,38 +8,36 @@ export function Hero() {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ['start start', 'end end'],
   });
 
-  // Smooth scroll mapping for video currentTime
+  // Map scroll position directly to the video frame.
+  // The video is encoded all-keyframe (every frame is seekable), so a direct
+  // 1:1 assignment scrubs smoothly and stops exactly when scrolling stops —
+  // no easing lag, no mid-clip pauses.
   useEffect(() => {
-    let animationFrameId: number;
-    let targetTime = 0;
-    
-    const unsubscribe = scrollYProgress.on("change", (latest) => {
+    let frameId: number;
+    let target = 0;
+
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
       if (duration > 0) {
-        targetTime = latest * duration;
+        target = latest * duration;
       }
     });
 
-    const updateVideoTime = () => {
-      if (videoRef.current && duration > 0) {
-        // A very light interpolation for smoother frames (optional, direct assign is often enough)
-        const diff = targetTime - videoRef.current.currentTime;
-        if (Math.abs(diff) > 0.05) {
-          videoRef.current.currentTime += diff * 0.5;
-        } else {
-          videoRef.current.currentTime = targetTime;
-        }
+    const tick = () => {
+      const video = videoRef.current;
+      if (video && duration > 0 && Math.abs(target - video.currentTime) > 0.001) {
+        video.currentTime = target;
       }
-      animationFrameId = requestAnimationFrame(updateVideoTime);
+      frameId = requestAnimationFrame(tick);
     };
 
-    updateVideoTime();
-    
+    tick();
+
     return () => {
       unsubscribe();
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(frameId);
     };
   }, [scrollYProgress, duration]);
 
@@ -49,36 +47,20 @@ export function Hero() {
     }
   };
 
-  // Scroll Indicator fades out
-  const textOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-
   return (
-    <div ref={containerRef} className="relative h-[400vh] bg-aura-dark w-full" id="product">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-aura-dark">
-        
-        {/* Video Background */}
-        <div className="absolute inset-0 w-full h-full">
-          <div className="absolute inset-0 bg-aura-brown/30 z-10 mix-blend-multiply pointer-events-none" />
-          <video 
-            ref={videoRef}
-            src="./coffee_is_ready.mp4"
-            className="w-full h-full object-cover opacity-90"
-            muted
-            playsInline
-            onLoadedMetadata={handleLoadedMetadata}
-            preload="auto"
-          />
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-aura-brown via-transparent to-aura-brown/50 z-10 pointer-events-none"></div>
-
-        {/* Scroll Indicator line */}
-        <motion.div 
-          style={{ opacity: textOpacity }}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <div className="w-[1px] h-16 bg-gradient-to-b from-aura-cream/50 to-transparent"></div>
-        </motion.div>
+    <div ref={containerRef} id="top" className="relative h-[300vh] bg-aura-dark w-full">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-aura-dark">
+        <video
+          ref={videoRef}
+          src="./coffee_is_ready.mp4"
+          className="w-full h-full object-cover"
+          muted
+          playsInline
+          preload="auto"
+          onLoadedMetadata={handleLoadedMetadata}
+        />
+        {/* Bottom fade only — seats the video into the next section, no text overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-aura-brown to-transparent pointer-events-none" />
       </div>
     </div>
   );

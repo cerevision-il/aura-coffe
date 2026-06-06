@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,11 +16,38 @@
   }
 }
 
-@layer utilities {
+@layer components {
   .matte-panel {
     @apply bg-aura-dark/80 backdrop-blur-md border border-aura-cream/10 shadow-lg shadow-black/40;
   }
   .matte-button {
     @apply bg-aura-cream text-aura-brown font-semibold hover:bg-white transition-colors duration-300 shadow-md shadow-black/20;
+  }
+  /* A card surface with a soft top-light, used across machine/feature sections */
+  .matte-card {
+    @apply bg-aura-mocha/40 border border-aura-cream/10 rounded-sm transition-all duration-500
+           hover:border-aura-cream/30 hover:bg-aura-mocha/60 shadow-xl shadow-black/30;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-xs uppercase tracking-[0.35em] text-aura-cream/50;
+  }
+}
+
+@layer utilities {
+  /* Subtle warm vignette behind hero/product imagery */
+  .glow-pedestal {
+    background: radial-gradient(60% 55% at 50% 45%, rgba(255, 239, 179, 0.10) 0%, transparent 70%);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Faint matte grain for premium texture, kept extremely light for performance */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
