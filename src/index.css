@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-aura-brown text-aura-cream font-sans antialiased overflow-x-hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-wide;
+  }
+}
+
+@layer utilities {
+  .matte-panel {
+    @apply bg-aura-dark/80 backdrop-blur-md border border-aura-cream/10 shadow-lg shadow-black/40;
+  }
+  .matte-button {
+    @apply bg-aura-cream text-aura-brown font-semibold hover:bg-white transition-colors duration-300 shadow-md shadow-black/20;
+  }
+}
